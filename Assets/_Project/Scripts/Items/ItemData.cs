@@ -16,4 +16,10 @@ public abstract class ItemData : ScriptableObject
     [Header("Stacking")]
     public bool isStackable = false;
     public int maxStackSize = 1;
+
+    // До якої категорії слотів підходить предмет. null = взагалі не екіпірується
+    public virtual SlotCategory? EquipCategory => null;
+
+    // У який конкретно слот всередині категорії йде предмет (0, якщо не важливо)
+    public virtual int PreferredSlotIndex => 0;
 }

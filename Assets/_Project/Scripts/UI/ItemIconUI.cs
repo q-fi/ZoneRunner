@@ -1,24 +1,24 @@
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class ItemIconUI : MonoBehaviour
+public class ItemIconUI : MonoBehaviour, IPointerClickHandler
 {
     [SerializeField] private Image iconImage;
 
-    private ItemData item;
+    private ItemInstance item;
 
-    public void Setup(ItemData itemData)
+    public void Setup(ItemInstance itemInstance)
     {
-        item = itemData;
-        if (iconImage != null && itemData.icon != null)
+        item = itemInstance;
+        if (iconImage != null && itemInstance.Data.icon != null)
         {
-            iconImage.sprite = itemData.icon;
+            iconImage.sprite = itemInstance.Data.icon;
         }
     }
 
-    public void OnClicked()
+    public void OnPointerClick(PointerEventData eventData)
     {
-        Debug.Log($"Клікнуто на предмет: {item.itemName}");
-        // Наступного разу тут відкриємо попап деталей предмета
+        ItemDetailPopupUI.Instance.Show(item);
     }
 }

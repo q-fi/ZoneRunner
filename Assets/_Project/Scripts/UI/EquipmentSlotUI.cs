@@ -1,17 +1,10 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public enum EquipmentSlotType
-{
-    PrimaryWeapon,
-    SecondaryWeapon,
-    Armor,
-    Detector
-}
-
 public class EquipmentSlotUI : MonoBehaviour
 {
-    [SerializeField] private EquipmentSlotType slotType;
+    [SerializeField] private SlotCategory category;
+    [SerializeField] private int slotIndex; // 0 для одиночних слотів (Armor/Detector), 0/1 для зброї і медицини, 0/1/2 для артефактів
     [SerializeField] private Image iconImage;
     [SerializeField] private Sprite emptySlotSprite;
 
@@ -28,25 +21,18 @@ public class EquipmentSlotUI : MonoBehaviour
     }
 
     private void Refresh()
-    {
-        ItemData equippedItem = slotType switch
-        {
-            EquipmentSlotType.PrimaryWeapon => InventoryManager.Instance.EquippedPrimaryWeapon,
-            EquipmentSlotType.SecondaryWeapon => InventoryManager.Instance.EquippedSecondaryWeapon,
-            EquipmentSlotType.Armor => InventoryManager.Instance.EquippedArmor,
-            EquipmentSlotType.Detector => InventoryManager.Instance.EquippedDetector,
-            _ => null
-        };
+{
+    var instance = InventoryManager.Instance.GetEquipped(category, slotIndex);
 
-        if (equippedItem != null && equippedItem.icon != null)
-        {
-            iconImage.sprite = equippedItem.icon;
-            iconImage.color = Color.white;
-        }
-        else
-        {
-            iconImage.sprite = emptySlotSprite;
-            iconImage.color = new Color(1f, 1f, 1f, 0.3f); // напівпрозорий, показує "порожньо"
-        }
+    if (instance != null && instance.Data.icon != null)
+    {
+        iconImage.sprite = instance.Data.icon;
+        iconImage.color = Color.white;
     }
+    else
+    {
+        iconImage.sprite = emptySlotSprite;
+        iconImage.color = new Color(1f, 1f, 1f, 0.3f);
+    }
+}
 }

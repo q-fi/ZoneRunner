@@ -5,25 +5,30 @@ public class InventoryGrid
     public readonly int Width;
     public readonly int Height;
 
-    private readonly ItemData[,] cells;
-    private readonly Dictionary<ItemData, (int x, int y)> itemPositions = new();
+    private readonly ItemInstance[,] cells;
+    private readonly Dictionary<ItemInstance, (int x, int y)> itemPositions = new();
 
     public InventoryGrid(int width, int height)
     {
         Width = width;
         Height = height;
-        cells = new ItemData[width, height];
+        cells = new ItemInstance[width, height];
     }
 
-    public bool TryAddItem(ItemData item)
+    public bool TryAddItem(ItemInstance instance)
     {
-        for (int y = 0; y <= Height - item.gridHeight; y++)
+        if (itemPositions.ContainsKey(instance))
+            return false; // цей екземпляр вже в сітці
+
+        var data = instance.Data;
+
+        for (int y = 0; y <= Height - data.gridHeight; y++)
         {
-            for (int x = 0; x <= Width - item.gridWidth; x++)
+            for (int x = 0; x <= Width - data.gridWidth; x++)
             {
-                if (CanPlaceAt(item, x, y))
+                if (CanPlaceAt(data, x, y))
                 {
-                    PlaceAt(item, x, y);
+                    PlaceAt(instance, x, y);
                     return true;
                 }
             }
@@ -31,11 +36,11 @@ public class InventoryGrid
         return false; // Немає вільного місця
     }
 
-    private bool CanPlaceAt(ItemData item, int startX, int startY)
+    private bool CanPlaceAt(ItemData data, int startX, int startY)
     {
-        for (int x = startX; x < startX + item.gridWidth; x++)
+        for (int x = startX; x < startX + data.gridWidth; x++)
         {
-            for (int y = startY; y < startY + item.gridHeight; y++)
+            for (int y = startY; y < startY + data.gridHeight; y++)
             {
                 if (cells[x, y] != null)
                     return false;
@@ -44,37 +49,57 @@ public class InventoryGrid
         return true;
     }
 
-    private void PlaceAt(ItemData item, int startX, int startY)
+    private void PlaceAt(ItemInstance instance, int startX, int startY)
     {
-        for (int x = startX; x < startX + item.gridWidth; x++)
+        var data = instance.Data;
+        for (int x = startX; x < startX + data.gridWidth; x++)
         {
-            for (int y = startY; y < startY + item.gridHeight; y++)
+            for (int y = startY; y < startY + data.gridHeight; y++)
             {
-                cells[x, y] = item;
+                cells[x, y] = instance;
             }
         }
-        itemPositions[item] = (startX, startY);
+        itemPositions[instance] = (startX, startY);
     }
 
-    public void RemoveItem(ItemData item)
+    public void RemoveItem(ItemInstance instance)
     {
-        if (!itemPositions.TryGetValue(item, out var pos))
+        if (!itemPositions.TryGetValue(instance, out var pos))
             return;
 
-        for (int x = pos.x; x < pos.x + item.gridWidth; x++)
+        var data = instance.Data;
+        for (int x = pos.x; x < pos.x + data.gridWidth; x++)
         {
-            for (int y = pos.y; y < pos.y + item.gridHeight; y++)
+            for (int y = pos.y; y < pos.y + data.gridHeight; y++)
             {
                 cells[x, y] = null;
             }
         }
-        itemPositions.Remove(item);
+        itemPositions.Remove(instance);
     }
 
-    public (int x, int y)? GetPosition(ItemData item)
+    public (int x, int y)? GetPosition(ItemInstance instance)
     {
-        return itemPositions.TryGetValue(item, out var pos) ? pos : null;
+        return itemPositions.TryGetValue(instance, out var pos) ? pos : null;
     }
 
-    public IEnumerable<ItemData> GetAllItems() => itemPositions.Keys;
+    public IEnumerable<ItemInstance> GetAllItems() => itemPositions.Keys;
+
+    /// <summary>Шукає існуючий стак того ж типу предмета, де є вільне місце (для стакання).</summary>
+    public ItemInstance FindStackableInstance(ItemData data)
+    {
+        foreach (var instance in itemPositions.Keys)
+        {
+            if (instance.Data == data && instance.StackCount < data.maxStackSize)
+                return instance;
+        }
+        return null;
+    }
+
+    /// <summary>Очищає всі позиції в сітці (використовується при сортуванні).</summary>
+    public void Clear()
+    {
+        System.Array.Clear(cells, 0, cells.Length);
+        itemPositions.Clear();
+    }
 }

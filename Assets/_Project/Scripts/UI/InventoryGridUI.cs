@@ -64,26 +64,26 @@ public class InventoryGridUI : MonoBehaviour
     }
 
     private void Redraw()
+{
+    foreach (Transform child in itemsContainer)
+        Destroy(child.gameObject);
+
+    var grid = InventoryManager.Instance.Grid;
+
+    foreach (var instance in grid.GetAllItems())
     {
-        foreach (Transform child in itemsContainer)
-            Destroy(child.gameObject);
+        var pos = grid.GetPosition(instance);
+        if (pos == null) continue;
 
-        var grid = InventoryManager.Instance.Grid;
+        GameObject iconObj = Instantiate(itemIconPrefab, itemsContainer);
+        RectTransform rt = iconObj.GetComponent<RectTransform>();
+        rt.anchorMin = new Vector2(0, 1);
+        rt.anchorMax = new Vector2(0, 1);
+        rt.pivot = new Vector2(0, 1);
+        rt.sizeDelta = new Vector2(instance.Data.gridWidth * cellSize, instance.Data.gridHeight * cellSize);
+        rt.anchoredPosition = new Vector2(pos.Value.x * cellSize, -pos.Value.y * cellSize);
 
-        foreach (var item in grid.GetAllItems())
-        {
-            var pos = grid.GetPosition(item);
-            if (pos == null) continue;
-
-            GameObject iconObj = Instantiate(itemIconPrefab, itemsContainer);
-            RectTransform rt = iconObj.GetComponent<RectTransform>();
-            rt.anchorMin = new Vector2(0, 1);
-            rt.anchorMax = new Vector2(0, 1);
-            rt.pivot = new Vector2(0, 1);
-            rt.sizeDelta = new Vector2(item.gridWidth * cellSize, item.gridHeight * cellSize);
-            rt.anchoredPosition = new Vector2(pos.Value.x * cellSize, -pos.Value.y * cellSize);
-
-            iconObj.GetComponent<ItemIconUI>().Setup(item);
-        }
+        iconObj.GetComponent<ItemIconUI>().Setup(instance);
     }
+}
 }

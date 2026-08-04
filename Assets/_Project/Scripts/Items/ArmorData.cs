@@ -7,4 +7,6 @@ public class ArmorData : ItemData
     public int defense;
     [Range(0f, 1f)] public float radiationResistance;
     public float durability = 100f;
+
+    public override SlotCategory? EquipCategory => SlotCategory.Armor;
 }

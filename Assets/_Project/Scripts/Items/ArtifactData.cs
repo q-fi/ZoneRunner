@@ -9,4 +9,6 @@ public class ArtifactData : ItemData
     public Rarity rarity;
     public float radiationLevel;
     public int basePrice;
+
+    public override SlotCategory? EquipCategory => SlotCategory.Artifact;
 }

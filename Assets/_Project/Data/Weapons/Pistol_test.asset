@@ -21,6 +21,7 @@ MonoBehaviour:
   gridHeight: 2
   isStackable: 0
   maxStackSize: 1
+  weaponSlot: 1
   damage: 10
   range: 40
   magazineSize: 20

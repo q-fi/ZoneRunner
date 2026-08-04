@@ -16,11 +16,11 @@ public class InventoryTester : MonoBehaviour
 
     public void EquipTestWeapon()
     {
-        InventoryManager.Instance.EquipWeapon(testWeapon, isPrimary: true);
+        InventoryManager.Instance.TryEquipItem(testWeapon);
     }
 
     public void EquipTestArmor()
     {
-        InventoryManager.Instance.EquipArmor(testArmor);
+        InventoryManager.Instance.TryEquipItem(testArmor);
     }
 }
