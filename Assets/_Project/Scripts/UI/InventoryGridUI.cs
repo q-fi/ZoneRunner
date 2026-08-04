@@ -10,6 +10,7 @@ public class InventoryGridUI : MonoBehaviour
     [SerializeField] private RectTransform viewport;
     [SerializeField] private GameObject cellPrefab;
     [SerializeField] private GameObject itemIconPrefab;
+    [SerializeField] private InventoryViewMode viewMode = InventoryViewMode.Inventory;
 
     private float cellSize;
     private float gridOffsetY;
@@ -63,12 +64,29 @@ public class InventoryGridUI : MonoBehaviour
         }
     }
 
+    private InventoryGrid GetCurrentGrid()
+{
+    switch (viewMode)
+    {
+        case InventoryViewMode.Inventory:
+            return InventoryManager.Instance.Grid;
+
+        case InventoryViewMode.BackpackPreset:
+            // Поки що пресети ще не використовують InventoryGrid,
+            // тому тимчасово показуємо звичайний інвентар.
+            return InventoryManager.Instance.Grid;
+
+        default:
+            return InventoryManager.Instance.Grid;
+    }
+}   
+
     private void Redraw()
 {
     foreach (Transform child in itemsContainer)
         Destroy(child.gameObject);
 
-    var grid = InventoryManager.Instance.Grid;
+    var grid = GetCurrentGrid();
 
     foreach (var instance in grid.GetAllItems())
     {

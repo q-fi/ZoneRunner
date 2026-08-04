@@ -12,6 +12,7 @@ public class InventoryManager : MonoBehaviour
     [SerializeField] private int gridHeight = 8;
 
     public InventoryGrid Grid { get; private set; }
+    public BackpackPresetCollection BackpackPresets { get; private set; }
 
     private readonly Dictionary<SlotCategory, ItemInstance[]> equipment = new()
     {
@@ -37,6 +38,10 @@ public class InventoryManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
 
         Grid = new InventoryGrid(gridWidth, gridHeight);
+
+        BackpackPresets = new BackpackPresetCollection(
+            gridWidth,
+            gridHeight);
     }
 
     /// <summary>Додає новий фізичний екземпляр предмета (зі стаканням, якщо предмет стакається).</summary>

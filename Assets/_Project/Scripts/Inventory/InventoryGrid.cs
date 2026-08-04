@@ -36,6 +36,31 @@ public class InventoryGrid
         return false; // Немає вільного місця
     }
 
+    public bool TryAddItem(ItemInstance instance, int x, int y)
+{
+        if (itemPositions.ContainsKey(instance))
+            return false;
+
+        var data = instance.Data;
+
+        // Перевірка меж сітки
+        if (x < 0 || y < 0)
+            return false;
+
+        if (x + data.gridWidth > Width)
+            return false;
+
+        if (y + data.gridHeight > Height)
+            return false;
+
+        // Перевірка, чи місце вільне
+        if (!CanPlaceAt(data, x, y))
+            return false;
+
+        PlaceAt(instance, x, y);
+        return true;
+}
+
     private bool CanPlaceAt(ItemData data, int startX, int startY)
     {
         for (int x = startX; x < startX + data.gridWidth; x++)
