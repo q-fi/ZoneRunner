@@ -101,7 +101,7 @@ public class InventoryGridUI : MonoBehaviour
         rt.sizeDelta = new Vector2(instance.Data.gridWidth * cellSize, instance.Data.gridHeight * cellSize);
         rt.anchoredPosition = new Vector2(pos.Value.x * cellSize, -pos.Value.y * cellSize);
 
-        iconObj.GetComponent<ItemIconUI>().Setup(instance);
+        iconObj.GetComponent<ItemIconUI>().Setup(instance, ItemContext.Inventory);
     }
 }
 }

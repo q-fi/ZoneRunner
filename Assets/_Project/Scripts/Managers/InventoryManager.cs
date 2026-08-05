@@ -26,6 +26,8 @@ public class InventoryManager : MonoBehaviour
     public event Action OnInventoryChanged;
     public event Action OnEquipmentChanged;
     public event Action<string> OnInventoryMessage; // для сповіщень типу "Немає місця"
+    public event Action OnPresetChanged;
+    public event Action OnCurrentPresetChanged;
 
     private void Awake()
     {
@@ -184,5 +186,50 @@ public class InventoryManager : MonoBehaviour
             ItemType.Ammo => 2,
             _ => 3
         };
+    }
+
+    public bool SaveItemToPreset(ItemInstance sourceInstance)
+    {
+    var preset = BackpackPresets.CurrentPreset;
+
+    // Створюємо новий, незалежний екземпляр з тими самими даними та кількістю в стаку
+    var virtualCopy = new ItemInstance(sourceInstance.Data, sourceInstance.StackCount);
+
+    bool success = preset.Grid.TryAddItem(virtualCopy);
+    if (success)
+        {
+        preset.IsDirty = true;
+        Debug.Log($"Додано в пресет '{preset.PresetName}': {sourceInstance.Data.itemName}");
+        OnPresetChanged?.Invoke();
+        }
+    else
+        {
+        Debug.Log($"Немає місця в пресеті для: {sourceInstance.Data.itemName}");
+        OnInventoryMessage?.Invoke($"Немає місця в пресеті для: {sourceInstance.Data.itemName}");
+        }
+    return success;
+    }
+
+/// <summary>Прибирає віртуальну копію предмета з поточного пресета (на реальний інвентар не впливає).</summary>
+    public void RemoveItemFromPreset(ItemInstance presetInstance)
+    {
+        var preset = BackpackPresets.CurrentPreset;
+        preset.Grid.RemoveItem(presetInstance);
+        preset.IsDirty = true;
+        Debug.Log($"Прибрано з пресета: {presetInstance.Data.itemName}");
+        OnPresetChanged?.Invoke();
+    }
+
+    public void SelectPreset(int index)
+    {
+        BackpackPresets.SelectPreset(index);
+        OnCurrentPresetChanged?.Invoke();
+    }
+
+    public void RenameCurrentPreset(string newName)
+    {
+        int index = BackpackPresets.Presets.IndexOf(BackpackPresets.CurrentPreset);
+        BackpackPresets.RenamePreset(index, newName);
+        OnCurrentPresetChanged?.Invoke();
     }
 }

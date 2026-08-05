@@ -19,9 +19,12 @@ public class ItemDetailPopupUI : MonoBehaviour
     [SerializeField] private Button equipButton;
     [SerializeField] private Button useButton;
     [SerializeField] private Button discardButton;
+    [SerializeField] private Button saveToPresetButton;
+    [SerializeField] private Button removeFromPresetButton;
     [SerializeField] private Button closeButton;
 
     private ItemInstance currentItem;
+    private ItemContext currentContext;
 
     private void Awake()
     {
@@ -32,28 +35,56 @@ public class ItemDetailPopupUI : MonoBehaviour
         equipButton.onClick.AddListener(OnEquipClicked);
         useButton.onClick.AddListener(OnUseClicked);
         discardButton.onClick.AddListener(OnDiscardClicked);
+        saveToPresetButton.onClick.AddListener(OnSaveToPresetClicked);
+        removeFromPresetButton.onClick.AddListener(OnRemoveFromPresetClicked);
     }
 
-    public void Show(ItemInstance instance)
+    public void Show(ItemInstance instance, ItemContext context = ItemContext.Inventory)
+{
+    currentItem = instance;
+    currentContext = context;
+    var data = instance.Data;
+
+    iconImage.sprite = data.icon;
+    nameText.text = data.isStackable && instance.StackCount > 1
+        ? $"{data.itemName} x{instance.StackCount}"
+        : data.itemName;
+    descriptionText.text = data.description;
+    statsText.text = BuildStatsText(data);
+
+    bool presetModeActive = InventoryPanelController.Instance != null
+                          && InventoryPanelController.Instance.IsPresetPanelActive;
+
+    if (context == ItemContext.Preset)
     {
-        currentItem = instance;
-        var data = instance.Data;
-
-        iconImage.sprite = data.icon;
-        nameText.text = data.isStackable && instance.StackCount > 1
-            ? $"{data.itemName} x{instance.StackCount}"
-            : data.itemName;
-        descriptionText.text = data.description;
-        statsText.text = BuildStatsText(data);
-
-        bool canEquip = data.EquipCategory != null;
-        equipButton.gameObject.SetActive(canEquip);
-
-        bool canUse = data.itemType == ItemType.Consumable;
-        useButton.gameObject.SetActive(canUse);
-
-        popupRoot.SetActive(true);
+        // Клік по предмету всередині сітки пресета — тільки "Прибрати з пресета"
+        equipButton.gameObject.SetActive(false);
+        useButton.gameObject.SetActive(false);
+        discardButton.gameObject.SetActive(false);
+        saveToPresetButton.gameObject.SetActive(false);
+        removeFromPresetButton.gameObject.SetActive(true);
     }
+    else if (presetModeActive)
+    {
+        // Клік по реальному інвентарю, поки відкрита панель пресетів — тільки "Зберегти в пресет"
+        equipButton.gameObject.SetActive(false);
+        useButton.gameObject.SetActive(false);
+        discardButton.gameObject.SetActive(false);
+        saveToPresetButton.gameObject.SetActive(true);
+        removeFromPresetButton.gameObject.SetActive(false);
+    }
+    else
+    {
+        // Звичайний режим екіпіровки — стандартні кнопки
+        equipButton.gameObject.SetActive(data.EquipCategory != null);
+        useButton.gameObject.SetActive(data.itemType == ItemType.Consumable);
+        discardButton.gameObject.SetActive(true);
+        saveToPresetButton.gameObject.SetActive(false);
+        removeFromPresetButton.gameObject.SetActive(false);
+    }
+
+    popupRoot.SetActive(true);
+}
 
     public void Close()
     {
@@ -107,6 +138,22 @@ public class ItemDetailPopupUI : MonoBehaviour
         if (currentItem == null) return;
 
         InventoryManager.Instance.DiscardItem(currentItem);
+        Close();
+    }
+
+    private void OnSaveToPresetClicked()
+    {
+        if (currentItem == null) return;
+
+        InventoryManager.Instance.SaveItemToPreset(currentItem);
+        Close();
+    }
+
+    private void OnRemoveFromPresetClicked()
+    {
+        if (currentItem == null) return;
+
+        InventoryManager.Instance.RemoveItemFromPreset(currentItem);
         Close();
     }
 }
