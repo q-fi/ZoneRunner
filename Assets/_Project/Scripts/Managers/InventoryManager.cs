@@ -10,6 +10,7 @@ public class InventoryManager : MonoBehaviour
     [Header("Grid Size")]
     [SerializeField] private int gridWidth = 6;
     [SerializeField] private int gridHeight = 8;
+    [SerializeField] private int presetGridHeight = 4; // NEW: сітка пресета менша за основний інвентар
 
     public InventoryGrid Grid { get; private set; }
     public BackpackPresetCollection BackpackPresets { get; private set; }
@@ -40,10 +41,7 @@ public class InventoryManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
 
         Grid = new InventoryGrid(gridWidth, gridHeight);
-
-        BackpackPresets = new BackpackPresetCollection(
-            gridWidth,
-            gridHeight);
+        BackpackPresets = new BackpackPresetCollection(gridWidth, presetGridHeight); // NEW: менша висота
     }
 
     /// <summary>Додає новий фізичний екземпляр предмета (зі стаканням, якщо предмет стакається).</summary>

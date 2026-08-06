@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 public class InventoryPanelController : MonoBehaviour
 {
@@ -8,6 +9,8 @@ public class InventoryPanelController : MonoBehaviour
     [SerializeField] private GameObject equipmentPanel;
     [SerializeField] private GameObject backpackPresetPanel;
     [SerializeField] private BackpackPresetGridUI presetGridUI;
+    [SerializeField] private InventoryGridUI inventoryGridUI;
+    [SerializeField] private ScrollRect scrollRect;
 
     public bool IsPresetPanelActive { get; private set; }
 
@@ -26,6 +29,9 @@ public class InventoryPanelController : MonoBehaviour
         equipmentPanel.SetActive(true);
         backpackPresetPanel.SetActive(false);
         IsPresetPanelActive = false;
+
+        inventoryGridUI.RecalculateOffset(equipmentPanel.GetComponent<RectTransform>());
+        ResetScroll();
     }
 
     public void ShowBackpackPresets()
@@ -35,5 +41,13 @@ public class InventoryPanelController : MonoBehaviour
         IsPresetPanelActive = true;
 
         presetGridUI.SetPreset(InventoryManager.Instance.BackpackPresets.CurrentPreset);
+        inventoryGridUI.RecalculateOffset(backpackPresetPanel.GetComponent<RectTransform>());
+        ResetScroll();
+    }
+
+    private void ResetScroll()
+    {
+        Canvas.ForceUpdateCanvases();
+        scrollRect.verticalNormalizedPosition = 1f;
     }
 }

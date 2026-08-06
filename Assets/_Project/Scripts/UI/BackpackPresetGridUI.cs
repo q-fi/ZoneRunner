@@ -51,26 +51,31 @@ public class BackpackPresetGridUI : MonoBehaviour
 
     private void BuildBackgroundGrid()
     {
-        var grid = currentPreset.Grid;
+    var grid = currentPreset.Grid;
 
-        Canvas.ForceUpdateCanvases();
-        cellSize = panelRoot.rect.width / grid.Width;
+    Canvas.ForceUpdateCanvases();
+    cellSize = panelRoot.rect.width / grid.Width;
 
-        for (int y = 0; y < grid.Height; y++)
+    for (int y = 0; y < grid.Height; y++)
+    {
+        for (int x = 0; x < grid.Width; x++)
         {
-            for (int x = 0; x < grid.Width; x++)
-            {
-                GameObject cell = Instantiate(cellPrefab, cellsContainer);
-                RectTransform rt = cell.GetComponent<RectTransform>();
-                rt.anchorMin = new Vector2(0, 1);
-                rt.anchorMax = new Vector2(0, 1);
-                rt.pivot = new Vector2(0, 1);
-                rt.sizeDelta = new Vector2(cellSize, cellSize);
-                rt.anchoredPosition = new Vector2(x * cellSize, -y * cellSize);
-            }
+            GameObject cell = Instantiate(cellPrefab, cellsContainer);
+            RectTransform rt = cell.GetComponent<RectTransform>();
+            rt.anchorMin = new Vector2(0, 1);
+            rt.anchorMax = new Vector2(0, 1);
+            rt.pivot = new Vector2(0, 1);
+            rt.sizeDelta = new Vector2(cellSize, cellSize);
+            rt.anchoredPosition = new Vector2(x * cellSize, -y * cellSize);
         }
+    }
 
-        backgroundBuilt = true; // розмір сітки однаковий для всіх 5 пресетів — фон будуємо лише раз
+    // NEW: підганяємо реальну висоту панелі під розмір сітки, щоб не було зайвого простору знизу
+    Vector2 size = panelRoot.sizeDelta;
+    size.y = grid.Height * cellSize;
+    panelRoot.sizeDelta = size;
+
+    backgroundBuilt = true;
     }
 
     private void Redraw()
