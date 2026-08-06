@@ -47,6 +47,7 @@ public class PresetSelectorUI : MonoBehaviour
         selectionListRoot.SetActive(willShow);
 
         if (willShow)
+            selectionListRoot.transform.SetAsLastSibling();
             PopulateList();
     }
 
@@ -61,10 +62,26 @@ public class PresetSelectorUI : MonoBehaviour
         {
             int index = i; // локальна копія для замикання, щоб кожна кнопка "запам'ятала" свій індекс
             GameObject itemObj = Instantiate(presetListItemPrefab, selectionListContainer);
+
+            RectTransform rt = itemObj.GetComponent<RectTransform>();
+
+            Debug.Log(
+                $"Item {i}: " +
+                $"Rect Height = {rt.rect.height}, " +
+                $"Preferred = {LayoutUtility.GetPreferredHeight(rt)}, " +
+                $"Anchored = {rt.anchoredPosition}"
+            );
+
             itemObj.GetComponentInChildren<TextMeshProUGUI>().text = presets[i].PresetName;
             itemObj.GetComponent<Button>().onClick.AddListener(() => SelectPreset(index));
+
+            Debug.Log($"Creating preset {i}");
         }
+
+        Debug.Log($"Presets count = {presets.Count}");
+
     }
+
 
     private void SelectPreset(int index)
     {

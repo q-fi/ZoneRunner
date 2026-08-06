@@ -8,8 +8,10 @@ public class InventoryPanelController : MonoBehaviour
     [Header("Panels")]
     [SerializeField] private GameObject equipmentPanel;
     [SerializeField] private GameObject backpackPresetPanel;
+
     [SerializeField] private BackpackPresetGridUI presetGridUI;
     [SerializeField] private InventoryGridUI inventoryGridUI;
+
     [SerializeField] private ScrollRect scrollRect;
 
     public bool IsPresetPanelActive { get; private set; }
@@ -28,26 +30,32 @@ public class InventoryPanelController : MonoBehaviour
     {
         equipmentPanel.SetActive(true);
         backpackPresetPanel.SetActive(false);
+
         IsPresetPanelActive = false;
 
-        inventoryGridUI.RecalculateOffset(equipmentPanel.GetComponent<RectTransform>());
-        ResetScroll();
+        Refresh(equipmentPanel.GetComponent<RectTransform>());
     }
 
     public void ShowBackpackPresets()
     {
         equipmentPanel.SetActive(false);
         backpackPresetPanel.SetActive(true);
+
         IsPresetPanelActive = true;
 
-        presetGridUI.SetPreset(InventoryManager.Instance.BackpackPresets.CurrentPreset);
-        inventoryGridUI.RecalculateOffset(backpackPresetPanel.GetComponent<RectTransform>());
-        ResetScroll();
+        presetGridUI.SetPreset(
+            InventoryManager.Instance.BackpackPresets.CurrentPreset);
+
+        Refresh(backpackPresetPanel.GetComponent<RectTransform>());
     }
 
-    private void ResetScroll()
+    private void Refresh(RectTransform panel)
     {
         Canvas.ForceUpdateCanvases();
+        LayoutRebuilder.ForceRebuildLayoutImmediate(panel);
+
+        inventoryGridUI.RecalculateOffset(panel);
+
         scrollRect.verticalNormalizedPosition = 1f;
     }
 }

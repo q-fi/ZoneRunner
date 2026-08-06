@@ -75,6 +75,8 @@ public class BackpackPresetGridUI : MonoBehaviour
     size.y = grid.Height * cellSize;
     panelRoot.sizeDelta = size;
 
+    Debug.Log("Grid height = " + panelRoot.rect.height);
+
     backgroundBuilt = true;
     }
 
