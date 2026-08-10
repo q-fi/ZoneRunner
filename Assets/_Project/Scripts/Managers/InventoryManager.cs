@@ -14,6 +14,7 @@ public class InventoryManager : MonoBehaviour
 
     public InventoryGrid Grid { get; private set; }
     public BackpackPresetCollection BackpackPresets { get; private set; }
+    public EquipmentPresetCollection EquipmentPresets { get; private set; }
 
     private readonly Dictionary<SlotCategory, ItemInstance[]> equipment = new()
     {
@@ -29,6 +30,8 @@ public class InventoryManager : MonoBehaviour
     public event Action<string> OnInventoryMessage; // для сповіщень типу "Немає місця"
     public event Action OnPresetChanged;
     public event Action OnCurrentPresetChanged;
+    public event Action OnEquipmentPresetChanged;
+    public event Action OnCurrentEquipmentPresetChanged;
 
     private void Awake()
     {
@@ -42,6 +45,7 @@ public class InventoryManager : MonoBehaviour
 
         Grid = new InventoryGrid(gridWidth, gridHeight);
         BackpackPresets = new BackpackPresetCollection(gridWidth, presetGridHeight); // NEW: менша висота
+        EquipmentPresets = new EquipmentPresetCollection();
     }
 
     /// <summary>Додає новий фізичний екземпляр предмета (зі стаканням, якщо предмет стакається).</summary>
@@ -229,5 +233,211 @@ public class InventoryManager : MonoBehaviour
         int index = BackpackPresets.Presets.IndexOf(BackpackPresets.CurrentPreset);
         BackpackPresets.RenamePreset(index, newName);
         OnCurrentPresetChanged?.Invoke();
+    }
+
+        // ---------- Equipment Presets ----------
+
+    public bool SaveItemToEquipmentPreset(ItemInstance sourceInstance)
+    {
+        if (sourceInstance == null)
+            return false;
+
+        var category = sourceInstance.Data.EquipCategory;
+
+        // Предмет взагалі не є екіпіровкою
+        if (category == null)
+        {
+            Debug.Log(
+                $"{sourceInstance.Data.itemName} не є предметом екіпіровки."
+            );
+
+            OnInventoryMessage?.Invoke(
+                $"{sourceInstance.Data.itemName} не можна додати до Equipment Preset."
+            );
+
+            return false;
+        }
+
+        // Backpack/Equipment preset працює тільки з цими категоріями
+        if (Array.IndexOf(
+                EquipmentPreset.SupportedCategories,
+                category.Value) == -1)
+        {
+            return false;
+        }
+
+        var preset = EquipmentPresets.CurrentPreset;
+
+        // Один конкретний ItemInstance не можна додати двічі
+        if (preset.Contains(sourceInstance))
+        {
+            OnInventoryMessage?.Invoke(
+                $"{sourceInstance.Data.itemName} вже є в Equipment Preset."
+            );
+
+            return false;
+        }
+
+        int slotIndex;
+
+        // -------------------------------------------------
+        // Weapon
+        // -------------------------------------------------
+
+        if (category.Value == SlotCategory.Weapon)
+        {
+            // Зброя сама визначає свій слот через PreferredSlotIndex
+            slotIndex = sourceInstance.Data.PreferredSlotIndex;
+
+            if (slotIndex < 0 ||
+                slotIndex >= preset.SlotCount(SlotCategory.Weapon))
+            {
+                return false;
+            }
+
+            // Не перезаписуємо існуючу зброю
+            if (preset.GetSlot(SlotCategory.Weapon, slotIndex) != null)
+            {
+                OnInventoryMessage?.Invoke(
+                    "Цей слот зброї в Equipment Preset вже зайнятий."
+                );
+
+                return false;
+            }
+        }
+
+        // -------------------------------------------------
+        // Armor
+        // -------------------------------------------------
+
+        else if (category.Value == SlotCategory.Armor)
+        {
+            slotIndex = 0;
+
+            if (preset.GetSlot(SlotCategory.Armor, slotIndex) != null)
+            {
+                OnInventoryMessage?.Invoke(
+                    "Слот броні в Equipment Preset вже зайнятий."
+                );
+
+                return false;
+            }
+        }
+
+        // -------------------------------------------------
+        // Detector
+        // -------------------------------------------------
+
+        else if (category.Value == SlotCategory.Detector)
+        {
+            slotIndex = 0;
+
+            if (preset.GetSlot(SlotCategory.Detector, slotIndex) != null)
+            {
+                OnInventoryMessage?.Invoke(
+                    "Слот детектора в Equipment Preset вже зайнятий."
+                );
+
+                return false;
+            }
+        }
+
+        // -------------------------------------------------
+        // Artifact
+        // -------------------------------------------------
+
+        else if (category.Value == SlotCategory.Artifact)
+        {
+            slotIndex = -1;
+
+            for (int i = 0;
+                i < preset.SlotCount(SlotCategory.Artifact);
+                i++)
+            {
+                if (preset.GetSlot(SlotCategory.Artifact, i) == null)
+                {
+                    slotIndex = i;
+                    break;
+                }
+            }
+
+            if (slotIndex == -1)
+            {
+                OnInventoryMessage?.Invoke(
+                    "У Equipment Preset немає вільного слота для артефакту."
+                );
+
+                return false;
+            }
+        }
+        else
+        {
+            return false;
+        }
+
+        // Додаємо саме конкретний ItemInstance
+       var presetItem = new PresetItem(sourceInstance);
+
+        preset.SetSlot(
+            category.Value,
+            slotIndex,
+            presetItem
+        );
+
+        preset.IsDirty = true;
+
+        Debug.Log(
+            $"Додано '{sourceInstance.Data.itemName}' " +
+            $"до Equipment Preset '{preset.PresetName}' " +
+            $"у {category.Value}[{slotIndex}]"
+        );
+
+        OnEquipmentPresetChanged?.Invoke();
+
+        return true;
+    }
+
+    public bool RemoveItemFromEquipmentPreset(
+    SlotCategory category,
+    int slotIndex)
+    {
+    var preset = EquipmentPresets.CurrentPreset;
+
+    if (preset.GetSlot(category, slotIndex) == null)
+        return false;
+
+    var item = preset.GetSlot(category, slotIndex);
+
+    preset.SetSlot(category, slotIndex, null);
+    preset.IsDirty = true;
+
+    Debug.Log(
+        $"Прибрано '{item.Data.itemName}' " +
+        $"з Equipment Preset '{preset.PresetName}'"
+    );
+
+    OnEquipmentPresetChanged?.Invoke();
+
+    return true;
+    }
+
+
+    public void SelectEquipmentPreset(int index)
+    {
+    EquipmentPresets.SelectPreset(index);
+
+    OnCurrentEquipmentPresetChanged?.Invoke();
+    }
+
+    public void RenameCurrentEquipmentPreset(string newName)
+    {
+        int index =
+            EquipmentPresets.Presets.IndexOf(
+                EquipmentPresets.CurrentPreset
+            );
+
+        EquipmentPresets.RenamePreset(index, newName);
+
+        OnCurrentEquipmentPresetChanged?.Invoke();
     }
 }

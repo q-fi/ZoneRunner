@@ -1,11 +1,16 @@
-using UnityEngine;
+using System;
 
-[System.Serializable]
+[Serializable]
 public class PresetItem
 {
-    public ItemData Item;
-
+    public string SourceInstanceId;
+    public ItemData Data;
     public int StackCount;
 
-    public Vector2Int GridPosition;
+    public PresetItem(ItemInstance source)
+    {
+        SourceInstanceId = source.InstanceId;
+        Data = source.Data;
+        StackCount = source.StackCount;
+    }
 }

@@ -4,6 +4,8 @@ using TMPro;
 
 public class PresetSelectorUI : MonoBehaviour
 {
+    [SerializeField] private bool equipmentPresetMode;
+
     [Header("Header")]
     [SerializeField] private TextMeshProUGUI currentPresetLabel;
     [SerializeField] private Button currentPresetButton;
@@ -23,7 +25,14 @@ public class PresetSelectorUI : MonoBehaviour
         currentPresetButton.onClick.AddListener(ToggleSelectionList);
         renameButton.onClick.AddListener(OpenRename);
 
-        InventoryManager.Instance.OnCurrentPresetChanged += Refresh;
+        if (equipmentPresetMode)
+        {
+            InventoryManager.Instance.OnCurrentEquipmentPresetChanged += Refresh;
+        }
+        else
+        {
+            InventoryManager.Instance.OnCurrentPresetChanged += Refresh;
+        }
         Refresh();
 
         selectionListRoot.SetActive(false);
@@ -32,13 +41,37 @@ public class PresetSelectorUI : MonoBehaviour
 
     private void OnDestroy()
     {
-        if (InventoryManager.Instance != null)
-            InventoryManager.Instance.OnCurrentPresetChanged -= Refresh;
+       if (InventoryManager.Instance != null)
+        {
+            if (equipmentPresetMode)
+            {
+                InventoryManager.Instance.OnCurrentEquipmentPresetChanged -= Refresh;
+            }
+            else
+            {
+                InventoryManager.Instance.OnCurrentPresetChanged -= Refresh;
+            }
+        }
     }
 
     private void Refresh()
     {
-        currentPresetLabel.text = InventoryManager.Instance.BackpackPresets.CurrentPreset.PresetName + " ▼";
+        if (equipmentPresetMode)
+        {
+            currentPresetLabel.text =
+                InventoryManager.Instance
+                    .EquipmentPresets
+                    .CurrentPreset
+                    .PresetName + " ▼";
+        }
+        else
+        {
+            currentPresetLabel.text =
+                InventoryManager.Instance
+                    .BackpackPresets
+                    .CurrentPreset
+                    .PresetName + " ▼";
+        }
     }
 
     private void ToggleSelectionList()
@@ -56,43 +89,98 @@ public class PresetSelectorUI : MonoBehaviour
         foreach (Transform child in selectionListContainer)
             Destroy(child.gameObject);
 
-        var presets = InventoryManager.Instance.BackpackPresets.Presets;
-
-        for (int i = 0; i < presets.Count; i++)
+        if (equipmentPresetMode)
         {
-            int index = i; // локальна копія для замикання, щоб кожна кнопка "запам'ятала" свій індекс
-            GameObject itemObj = Instantiate(presetListItemPrefab, selectionListContainer);
+            var presets =
+                InventoryManager.Instance.EquipmentPresets.Presets;
 
-            RectTransform rt = itemObj.GetComponent<RectTransform>();
+            for (int i = 0; i < presets.Count; i++)
+            {
+                int index = i;
 
-            Debug.Log(
-                $"Item {i}: " +
-                $"Rect Height = {rt.rect.height}, " +
-                $"Preferred = {LayoutUtility.GetPreferredHeight(rt)}, " +
-                $"Anchored = {rt.anchoredPosition}"
-            );
+                GameObject itemObj =
+                    Instantiate(
+                        presetListItemPrefab,
+                        selectionListContainer
+                    );
 
-            itemObj.GetComponentInChildren<TextMeshProUGUI>().text = presets[i].PresetName;
-            itemObj.GetComponent<Button>().onClick.AddListener(() => SelectPreset(index));
+                itemObj
+                    .GetComponentInChildren<TextMeshProUGUI>()
+                    .text = presets[i].PresetName;
 
-            Debug.Log($"Creating preset {i}");
+                itemObj
+                    .GetComponent<Button>()
+                    .onClick
+                    .AddListener(
+                        () => SelectPreset(index)
+                    );
+            }
         }
+        else
+        {
+            var presets =
+                InventoryManager.Instance.BackpackPresets.Presets;
 
-        Debug.Log($"Presets count = {presets.Count}");
+            for (int i = 0; i < presets.Count; i++)
+            {
+                int index = i;
 
+                GameObject itemObj =
+                    Instantiate(
+                        presetListItemPrefab,
+                        selectionListContainer
+                    );
+
+                itemObj
+                    .GetComponentInChildren<TextMeshProUGUI>()
+                    .text = presets[i].PresetName;
+
+                itemObj
+                    .GetComponent<Button>()
+                    .onClick
+                    .AddListener(
+                        () => SelectPreset(index)
+                    );
+            }
+        }
     }
 
 
     private void SelectPreset(int index)
     {
-        InventoryManager.Instance.SelectPreset(index);
+        if (equipmentPresetMode)
+        {
+            InventoryManager.Instance.SelectEquipmentPreset(index);
+        }
+        else
+        {
+            InventoryManager.Instance.SelectPreset(index);
+        }
+
         selectionListRoot.SetActive(false);
     }
 
     private void OpenRename()
     {
         renameInputRoot.SetActive(true);
-        renameInputField.text = InventoryManager.Instance.BackpackPresets.CurrentPreset.PresetName;
+
+        if (equipmentPresetMode)
+        {
+            renameInputField.text =
+                InventoryManager.Instance
+                    .EquipmentPresets
+                    .CurrentPreset
+                    .PresetName;
+        }
+        else
+        {
+            renameInputField.text =
+                InventoryManager.Instance
+                    .BackpackPresets
+                    .CurrentPreset
+                    .PresetName;
+        }
+
         renameInputField.onEndEdit.RemoveAllListeners();
         renameInputField.onEndEdit.AddListener(ConfirmRename);
     }
@@ -104,6 +192,15 @@ public class PresetSelectorUI : MonoBehaviour
         if (string.IsNullOrWhiteSpace(newName))
             return;
 
-        InventoryManager.Instance.RenameCurrentPreset(newName);
+        if (equipmentPresetMode)
+        {
+            InventoryManager.Instance
+                .RenameCurrentEquipmentPreset(newName);
+        }
+        else
+        {
+            InventoryManager.Instance
+                .RenameCurrentPreset(newName);
+        }
     }
 }

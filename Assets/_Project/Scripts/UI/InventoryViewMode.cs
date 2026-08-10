@@ -1,5 +1,6 @@
 public enum InventoryViewMode
 {
     Inventory,
-    BackpackPreset
+    BackpackPreset,
+    EquipmentPreset
 }
