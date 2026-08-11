@@ -22,6 +22,7 @@ public class ItemDetailPopupUI : MonoBehaviour
     [SerializeField] private Button saveToPresetButton;
     [SerializeField] private Button removeFromPresetButton;
     [SerializeField] private Button closeButton;
+    [SerializeField] private Button addToEquipmentPresetButton;
 
     private ItemInstance currentItem;
     private ItemContext currentContext;
@@ -37,10 +38,11 @@ public class ItemDetailPopupUI : MonoBehaviour
         discardButton.onClick.AddListener(OnDiscardClicked);
         saveToPresetButton.onClick.AddListener(OnSaveToPresetClicked);
         removeFromPresetButton.onClick.AddListener(OnRemoveFromPresetClicked);
+        addToEquipmentPresetButton.onClick.AddListener(OnAddToEquipmentPresetClicked);
     }
 
     public void Show(ItemInstance instance, ItemContext context = ItemContext.Inventory)
-{
+    {
     currentItem = instance;
     currentContext = context;
     var data = instance.Data;
@@ -54,37 +56,66 @@ public class ItemDetailPopupUI : MonoBehaviour
 
     bool presetModeActive = InventoryPanelController.Instance != null
                           && InventoryPanelController.Instance.IsPresetPanelActive;
+    
+    bool equipmentPresetMode = InventoryPanelController.Instance != null 
+                          && InventoryPanelController.Instance.CurrentViewMode == InventoryViewMode.EquipmentPreset;
 
     if (context == ItemContext.Preset)
     {
-        // Клік по предмету всередині сітки пресета — тільки "Прибрати з пресета"
+        // Предмет знаходиться всередині Backpack Preset.
+        // Можна тільки прибрати його з пресета.
+
         equipButton.gameObject.SetActive(false);
         useButton.gameObject.SetActive(false);
         discardButton.gameObject.SetActive(false);
         saveToPresetButton.gameObject.SetActive(false);
+        addToEquipmentPresetButton.gameObject.SetActive(false);
+
         removeFromPresetButton.gameObject.SetActive(true);
     }
-    else if (presetModeActive)
+    else if (equipmentPresetMode)
     {
-        // Клік по реальному інвентарю, поки відкрита панель пресетів — тільки "Зберегти в пресет"
+        // Відкритий Equipment Preset,
+        // але предмет натиснутий у реальному інвентарі.
+
         equipButton.gameObject.SetActive(false);
         useButton.gameObject.SetActive(false);
         discardButton.gameObject.SetActive(false);
-        saveToPresetButton.gameObject.SetActive(true);
+        saveToPresetButton.gameObject.SetActive(false);
+        removeFromPresetButton.gameObject.SetActive(false);
+
+        addToEquipmentPresetButton.gameObject.SetActive(
+        CanSaveToEquipmentPreset(data)
+        );
+    }
+    else if (presetModeActive)
+    {
+        // Відкритий Backpack Preset,
+        // але предмет натиснутий у реальному інвентарі.
+
+        equipButton.gameObject.SetActive(false);
+        useButton.gameObject.SetActive(false);
+        discardButton.gameObject.SetActive(false);
+        saveToPresetButton.gameObject.SetActive(
+        CanSaveToBackpackPreset(data)
+        );
+        addToEquipmentPresetButton.gameObject.SetActive(false);
         removeFromPresetButton.gameObject.SetActive(false);
     }
     else
     {
-        // Звичайний режим екіпіровки — стандартні кнопки
+        // Звичайний Inventory.
+
         equipButton.gameObject.SetActive(data.EquipCategory != null);
         useButton.gameObject.SetActive(data.itemType == ItemType.Consumable);
         discardButton.gameObject.SetActive(true);
         saveToPresetButton.gameObject.SetActive(false);
+        addToEquipmentPresetButton.gameObject.SetActive(false);
         removeFromPresetButton.gameObject.SetActive(false);
     }
 
     popupRoot.SetActive(true);
-}
+    }
 
     public void Close()
     {
@@ -111,6 +142,37 @@ public class ItemDetailPopupUI : MonoBehaviour
             default:
                 return string.Empty;
         }
+    }
+
+    private bool CanSaveToBackpackPreset(ItemData data)
+    {
+        if (data == null)
+            return false;
+
+        // Набої
+        if (data.itemType == ItemType.Ammo)
+            return true;
+
+        // Гранати та їжа/напої
+        if (data is ConsumableData consumable)
+        {
+            return consumable.effect == ConsumableEffect.Grenade
+                || consumable.effect == ConsumableEffect.RestoreStamina;
+        }
+
+        return false;
+    }
+
+    private bool CanSaveToEquipmentPreset(ItemData data)
+    {
+        if (data == null)
+            return false;
+
+        return data.EquipCategory == SlotCategory.Weapon
+            || data.EquipCategory == SlotCategory.Armor
+            || data.EquipCategory == SlotCategory.Detector
+            || data.EquipCategory == SlotCategory.Artifact
+            || data.EquipCategory == SlotCategory.Medicine;
     }
 
     private void OnEquipClicked()
@@ -146,6 +208,16 @@ public class ItemDetailPopupUI : MonoBehaviour
         if (currentItem == null) return;
 
         InventoryManager.Instance.SaveItemToPreset(currentItem);
+        Close();
+    }
+
+    private void OnAddToEquipmentPresetClicked()
+    {
+        if (currentItem == null)
+            return;
+
+        InventoryManager.Instance.SaveItemToEquipmentPreset(currentItem);
+
         Close();
     }
 

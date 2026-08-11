@@ -192,24 +192,77 @@ public class InventoryManager : MonoBehaviour
 
     public bool SaveItemToPreset(ItemInstance sourceInstance)
     {
-    var preset = BackpackPresets.CurrentPreset;
+        if (sourceInstance == null)
+            return false;
 
-    // Створюємо новий, незалежний екземпляр з тими самими даними та кількістю в стаку
-    var virtualCopy = new ItemInstance(sourceInstance.Data, sourceInstance.StackCount);
+        if (!CanSaveItemToBackpackPreset(sourceInstance))
+        {
+            Debug.Log(
+                $"{sourceInstance.Data.itemName} не можна додати до Backpack Preset."
+            );
 
-    bool success = preset.Grid.TryAddItem(virtualCopy);
-    if (success)
-        {
-        preset.IsDirty = true;
-        Debug.Log($"Додано в пресет '{preset.PresetName}': {sourceInstance.Data.itemName}");
-        OnPresetChanged?.Invoke();
+            OnInventoryMessage?.Invoke(
+                $"{sourceInstance.Data.itemName} не можна додати до Backpack Preset."
+            );
+
+            return false;
         }
-    else
+
+        var preset = BackpackPresets.CurrentPreset;
+
+        // Створюємо віртуальну копію
+        var virtualCopy = new ItemInstance(
+            sourceInstance.Data,
+            sourceInstance.StackCount
+        );
+
+        bool success = preset.Grid.TryAddItem(virtualCopy);
+
+        if (success)
         {
-        Debug.Log($"Немає місця в пресеті для: {sourceInstance.Data.itemName}");
-        OnInventoryMessage?.Invoke($"Немає місця в пресеті для: {sourceInstance.Data.itemName}");
+            preset.IsDirty = true;
+
+            Debug.Log(
+                $"Додано в Backpack Preset '{preset.PresetName}': " +
+                sourceInstance.Data.itemName
+            );
+
+            OnPresetChanged?.Invoke();
         }
-    return success;
+        else
+        {
+            Debug.Log(
+                $"Немає місця в Backpack Preset для: " +
+                sourceInstance.Data.itemName
+            );
+
+            OnInventoryMessage?.Invoke(
+                $"Немає місця в пресеті для: {sourceInstance.Data.itemName}"
+            );
+        }
+
+        return success;
+    }
+
+    private bool CanSaveItemToBackpackPreset(ItemInstance instance)
+    {
+        if (instance == null || instance.Data == null)
+            return false;
+
+        ItemData data = instance.Data;
+
+        // Боєприпаси
+        if (data.itemType == ItemType.Ammo)
+            return true;
+
+        // Гранати та їжа/напої
+        if (data is ConsumableData consumable)
+        {
+            return consumable.effect == ConsumableEffect.Grenade
+                || consumable.effect == ConsumableEffect.RestoreStamina;
+        }
+
+        return false;
     }
 
 /// <summary>Прибирає віртуальну копію предмета з поточного пресета (на реальний інвентар не впливає).</summary>
@@ -243,6 +296,13 @@ public class InventoryManager : MonoBehaviour
             return false;
 
         var category = sourceInstance.Data.EquipCategory;
+
+        Debug.Log(
+            $"EQUIPMENT PRESET DEBUG | " +
+            $"Item: {sourceInstance.Data.itemName} | " +
+            $"Type: {sourceInstance.Data.itemType} | " +
+            $"Category: {category}"
+        );
 
         // Предмет взагалі не є екіпіровкою
         if (category == null)
@@ -286,7 +346,6 @@ public class InventoryManager : MonoBehaviour
 
         if (category.Value == SlotCategory.Weapon)
         {
-            // Зброя сама визначає свій слот через PreferredSlotIndex
             slotIndex = sourceInstance.Data.PreferredSlotIndex;
 
             if (slotIndex < 0 ||
@@ -295,7 +354,6 @@ public class InventoryManager : MonoBehaviour
                 return false;
             }
 
-            // Не перезаписуємо існуючу зброю
             if (preset.GetSlot(SlotCategory.Weapon, slotIndex) != null)
             {
                 OnInventoryMessage?.Invoke(
@@ -370,6 +428,37 @@ public class InventoryManager : MonoBehaviour
                 return false;
             }
         }
+
+        // -------------------------------------------------
+        // Medicine
+        // -------------------------------------------------
+
+        else if (category.Value == SlotCategory.Medicine)
+        {
+            slotIndex = -1;
+
+            // У нас 2 медичних слоти
+            for (int i = 0;
+                i < preset.SlotCount(SlotCategory.Medicine);
+                i++)
+            {
+                if (preset.GetSlot(SlotCategory.Medicine, i) == null)
+                {
+                    slotIndex = i;
+                    break;
+                }
+            }
+
+            if (slotIndex == -1)
+            {
+                OnInventoryMessage?.Invoke(
+                    "У Equipment Preset немає вільного слота для медицини."
+                );
+
+                return false;
+            }
+        }
+
         else
         {
             return false;

@@ -13,6 +13,7 @@ public class EquipmentPreset
         { SlotCategory.Armor,    new PresetItem[1] },
         { SlotCategory.Detector, new PresetItem[1] },
         { SlotCategory.Artifact, new PresetItem[3] },
+        { SlotCategory.Medicine, new PresetItem[2] },
     };
 
     public EquipmentPreset(string presetName)
@@ -86,6 +87,7 @@ public class EquipmentPreset
         SlotCategory.Weapon,
         SlotCategory.Armor,
         SlotCategory.Detector,
-        SlotCategory.Artifact
+        SlotCategory.Artifact,
+        SlotCategory.Medicine
     };
 }

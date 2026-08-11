@@ -20,7 +20,25 @@ public class ItemIconUI : MonoBehaviour, IPointerClickHandler
     }
 
     public void OnPointerClick(PointerEventData eventData)
+{
+    Debug.Log(
+        $"ItemIconUI CLICK | item = {item} | " +
+        $"context = {context} | " +
+        $"Popup Instance = {ItemDetailPopupUI.Instance}"
+    );
+
+    if (item == null)
     {
-        ItemDetailPopupUI.Instance.Show(item, context);
+        Debug.LogError("ItemIconUI: item == null");
+        return;
     }
+
+    if (ItemDetailPopupUI.Instance == null)
+    {
+        Debug.LogError("ItemIconUI: ItemDetailPopupUI.Instance == null");
+        return;
+    }
+
+    ItemDetailPopupUI.Instance.Show(item, context);
+}
 }
