@@ -13,6 +13,7 @@ public class ShelterAllStatsUI : MonoBehaviour
 
     private readonly List<DetailedStatRowUI> spawnedRows = new();
     private float baseScrollContentHeight;
+    private bool isInitialized;
 
     private void Awake()
     {
@@ -26,6 +27,8 @@ public class ShelterAllStatsUI : MonoBehaviour
 
         if (PlayerStats.Instance != null)
             PlayerStats.Instance.OnStatsChanged += RefreshIfOpen;
+
+        isInitialized = true;
     }
 
     private void OnDestroy()
@@ -42,10 +45,23 @@ public class ShelterAllStatsUI : MonoBehaviour
         if (shouldOpen)
             RebuildRows();
         else
-            scrollContent.SetSizeWithCurrentAnchors(
-                RectTransform.Axis.Vertical,
-                baseScrollContentHeight
-            );
+            CollapseAllStats();
+    }
+
+    private void OnDisable()
+    {
+        if (isInitialized)
+            CollapseAllStats();
+    }
+
+    private void CollapseAllStats()
+    {
+        allStatsContent.SetActive(false);
+
+        scrollContent.SetSizeWithCurrentAnchors(
+            RectTransform.Axis.Vertical,
+            baseScrollContentHeight
+        );
     }
 
     private void RefreshIfOpen()
@@ -70,6 +86,15 @@ public class ShelterAllStatsUI : MonoBehaviour
             float finalValue = PlayerStats.Instance.GetFinalStat(stat);
             float modifierValue = finalValue - baseValue;
 
+            bool isBaseStat =
+                stat == PlayerStatType.Health ||
+                stat == PlayerStatType.Stamina ||
+                stat == PlayerStatType.Endurance ||
+                stat == PlayerStatType.Luck;
+
+            if (!isBaseStat && Mathf.Approximately(modifierValue, 0f))
+                continue;
+
             DetailedStatRowUI row = Instantiate(
                 rowPrefab,
                 allStatsContent.transform
@@ -79,16 +104,31 @@ public class ShelterAllStatsUI : MonoBehaviour
             spawnedRows.Add(row);
         }
 
+        ResizeScrollContent();
+
+    }
+    private void ResizeScrollContent()
+    {
         Canvas.ForceUpdateCanvases();
 
         RectTransform allStatsRect =
             allStatsContent.GetComponent<RectTransform>();
 
         LayoutRebuilder.ForceRebuildLayoutImmediate(allStatsRect);
+        Canvas.ForceUpdateCanvases();
+
+        Bounds bounds =
+            RectTransformUtility.CalculateRelativeRectTransformBounds(
+                scrollContent,
+                allStatsRect
+            );
+
+        float requiredHeight =
+            scrollContent.rect.yMax - bounds.min.y + 32f;
 
         scrollContent.SetSizeWithCurrentAnchors(
             RectTransform.Axis.Vertical,
-            baseScrollContentHeight + allStatsRect.rect.height
+            Mathf.Max(baseScrollContentHeight, requiredHeight)
         );
     }
 }

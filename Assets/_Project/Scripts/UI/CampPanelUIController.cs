@@ -35,8 +35,11 @@ public class CampPanelUIController : MonoBehaviour
 
     public void CloseCurrentPanel()
     {
-        if (currentPanel != null)
-            currentPanel.SetActive(false);
+        foreach (GameObject panel in campPanels)
+        {
+            if (panel != null)
+                panel.SetActive(false);
+        }
 
         currentPanel = null;
         actionButtons.SetActive(true);

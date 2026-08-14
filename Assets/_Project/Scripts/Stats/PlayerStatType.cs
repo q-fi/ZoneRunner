@@ -3,5 +3,6 @@ public enum PlayerStatType
     Health,
     Stamina,
     Endurance,
-    Luck
+    Luck,
+    Defense
 }

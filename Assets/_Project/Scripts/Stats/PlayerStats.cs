@@ -34,6 +34,7 @@ public class PlayerStats : MonoBehaviour
             PlayerStatType.Stamina => baseStamina,
             PlayerStatType.Endurance => baseEndurance,
             PlayerStatType.Luck => baseLuck,
+            PlayerStatType.Defense => 0f,
             _ => 0f
         };
     }
@@ -44,10 +45,7 @@ public class PlayerStats : MonoBehaviour
 
         foreach (var modifier in modifiers)
         {
-            if (modifier == null)
-                continue;
-
-            if (modifier.stat == stat)
+            if (modifier != null && modifier.stat == stat)
                 value += modifier.value;
         }
 
@@ -67,42 +65,39 @@ public class PlayerStats : MonoBehaviour
             return;
         }
 
-        foreach (PlayerStatType stat in System.Enum.GetValues(typeof(PlayerStatType)))
-        {
-            Debug.Log(
-                $"BASE {stat}: {GetBaseStat(stat)}"
-            );
-        }
-
         foreach (var item in InventoryManager.Instance.GetAllEquippedItems())
         {
             if (item == null || item.Data == null)
                 continue;
 
-            Debug.Log(
-                $"EQUIPPED: {item.Data.itemName}"
-            );
+            Debug.Log($"EQUIPPED: {item.Data.itemName}");
 
-            if (item.Data.StatModifiers == null ||
-                item.Data.StatModifiers.Count == 0)
+            if (item.Data.StatModifiers != null)
             {
-                Debug.Log(
-                    "  No stat modifiers."
-                );
+                foreach (var modifier in item.Data.StatModifiers)
+                {
+                    if (modifier == null)
+                        continue;
 
-                continue;
+                    modifiers.Add(modifier);
+
+                    Debug.Log(
+                        $"  MODIFIER: {modifier.stat} " +
+                        $"{modifier.value:+0.##;-0.##;0}"
+                    );
+                }
             }
 
-            foreach (var modifier in item.Data.StatModifiers)
+            if (item.Data is ArmorData armor && armor.defense != 0)
             {
-                if (modifier == null)
-                    continue;
-
-                modifiers.Add(modifier);
-
-                Debug.Log(
-                    $"  MODIFIER: {modifier.stat} {modifier.value:+0.##;-0.##;0}"
+                modifiers.Add(
+                    new StatModifier(
+                        PlayerStatType.Defense,
+                        armor.defense
+                    )
                 );
+
+                Debug.Log($"  ARMOR DEFENSE: +{armor.defense}");
             }
         }
 
@@ -110,9 +105,7 @@ public class PlayerStats : MonoBehaviour
 
         foreach (PlayerStatType stat in System.Enum.GetValues(typeof(PlayerStatType)))
         {
-            Debug.Log(
-                $"FINAL {stat}: {GetFinalStat(stat)}"
-            );
+            Debug.Log($"FINAL {stat}: {GetFinalStat(stat)}");
         }
 
         Debug.Log("==========================================");
@@ -126,7 +119,6 @@ public class PlayerStats : MonoBehaviour
             return;
 
         modifiers.Add(modifier);
-
         OnStatsChanged?.Invoke();
     }
 
@@ -136,14 +128,40 @@ public class PlayerStats : MonoBehaviour
             return;
 
         modifiers.Remove(modifier);
-
         OnStatsChanged?.Invoke();
     }
 
     public void ClearModifiers()
     {
         modifiers.Clear();
+        OnStatsChanged?.Invoke();
+    }
+
+    public bool TryUpgradeBaseStat(PlayerStatType stat)
+    {
+        switch (stat)
+        {
+            case PlayerStatType.Health:
+                baseHealth += 1f;
+                break;
+
+            case PlayerStatType.Stamina:
+                baseStamina += 1f;
+                break;
+
+            case PlayerStatType.Endurance:
+                baseEndurance += 1f;
+                break;
+
+            case PlayerStatType.Luck:
+                baseLuck += 1f;
+                break;
+
+            default:
+                return false;
+        }
 
         OnStatsChanged?.Invoke();
+        return true;
     }
 }
