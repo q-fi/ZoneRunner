@@ -10,8 +10,7 @@ public class InventoryManager : MonoBehaviour
     [Header("Grid Size")]
     [SerializeField] private int gridWidth = 6;
     [SerializeField] private int gridHeight = 8;
-    [SerializeField] private int presetGridHeight = 4; // NEW: сітка пресета менша за основний інвентар
-
+    [SerializeField] private int presetGridHeight = 4; 
     public InventoryGrid Grid { get; private set; }
     public BackpackPresetCollection BackpackPresets { get; private set; }
     public EquipmentPresetCollection EquipmentPresets { get; private set; }
@@ -27,7 +26,7 @@ public class InventoryManager : MonoBehaviour
 
     public event Action OnInventoryChanged;
     public event Action OnEquipmentChanged;
-    public event Action<string> OnInventoryMessage; // для сповіщень типу "Немає місця"
+    public event Action<string> OnInventoryMessage; 
     public event Action OnPresetChanged;
     public event Action OnCurrentPresetChanged;
     public event Action OnEquipmentPresetChanged;
@@ -48,7 +47,7 @@ public class InventoryManager : MonoBehaviour
         EquipmentPresets = new EquipmentPresetCollection();
     }
 
-    /// <summary>Додає новий фізичний екземпляр предмета (зі стаканням, якщо предмет стакається).</summary>
+    /// <summary>Додає новий фізичний екземпляр предмета .</summary>
     public bool AddItem(ItemData template, int count = 1)
     {
         if (template.isStackable)
@@ -67,7 +66,6 @@ public class InventoryManager : MonoBehaviour
                     Debug.Log($"Додано в стак: {template.itemName} (+{toAdd})");
                     return true;
                 }
-                // стак заповнився, а лишок є — створюємо ще один екземпляр нижче
             }
         }
 
@@ -99,6 +97,18 @@ public class InventoryManager : MonoBehaviour
 
     public ItemInstance GetEquipped(SlotCategory category, int slotIndex) => equipment[category][slotIndex];
 
+    public IEnumerable<ItemInstance> GetAllEquippedItems()
+    {
+        foreach (var slots in equipment.Values)
+        {
+            foreach (var item in slots)
+            {
+                if (item != null)
+                    yield return item;
+            }
+        }
+    }
+
     public bool TryEquipItem(ItemInstance instance)
     {
         var category = instance.Data.EquipCategory;
@@ -118,18 +128,34 @@ public class InventoryManager : MonoBehaviour
         }
 
         slots[slotIndex] = instance;
-        Debug.Log($"Екіпіровано {instance.Data.itemName} у {category.Value}[{slotIndex}]");
+
+        Debug.Log(
+            $"Екіпіровано {instance.Data.itemName} у {category.Value}[{slotIndex}]"
+        );
+
         OnEquipmentChanged?.Invoke();
+
+        if (PlayerStats.Instance == null)
+        {
+            Debug.LogError("PLAYER STATS INSTANCE == NULL!");
+        }
+        else
+        {
+            Debug.Log("PLAYER STATS FOUND → REBUILDING...");
+            PlayerStats.Instance.RebuildFromEquipment();
+        }
+
         return true;
     }
 
-    /// <summary>Швидке екіпірування напряму з ItemData (для тестів, без проходження через сітку).</summary>
+    /// <summary>Швидке екіп напряму з ItemData (для тестів, без проходження через сітку).</summary>
     public bool TryEquipItem(ItemData template) => TryEquipItem(new ItemInstance(template));
 
     public void UnequipSlot(SlotCategory category, int slotIndex)
     {
         equipment[category][slotIndex] = null;
         OnEquipmentChanged?.Invoke();
+        PlayerStats.Instance?.RebuildFromEquipment();
     }
 
     public void DiscardItem(ItemInstance instance)
@@ -153,7 +179,7 @@ public class InventoryManager : MonoBehaviour
             OnInventoryChanged?.Invoke();
     }
 
-    /// <summary>Сортує інвентар: зброя → броня → набої → все інше.</summary>
+    /// <summary>Сортує: зброя  броня  набої інше.</summary>
     public void SortInventory()
     {
         var items = Grid.GetAllItems().ToList();
@@ -165,7 +191,6 @@ public class InventoryManager : MonoBehaviour
             if (priorityA != priorityB)
                 return priorityA.CompareTo(priorityB);
 
-            // всередині однакового пріоритету — більші предмети спочатку (щільніша упаковка)
             int areaA = a.Data.gridWidth * a.Data.gridHeight;
             int areaB = b.Data.gridWidth * b.Data.gridHeight;
             return areaB.CompareTo(areaA);

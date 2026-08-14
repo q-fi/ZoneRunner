@@ -62,8 +62,6 @@ public class ItemDetailPopupUI : MonoBehaviour
 
     if (context == ItemContext.Preset)
     {
-        // Предмет знаходиться всередині Backpack Preset.
-        // Можна тільки прибрати його з пресета.
 
         equipButton.gameObject.SetActive(false);
         useButton.gameObject.SetActive(false);
@@ -75,9 +73,6 @@ public class ItemDetailPopupUI : MonoBehaviour
     }
     else if (equipmentPresetMode)
     {
-        // Відкритий Equipment Preset,
-        // але предмет натиснутий у реальному інвентарі.
-
         equipButton.gameObject.SetActive(false);
         useButton.gameObject.SetActive(false);
         discardButton.gameObject.SetActive(false);
@@ -90,8 +85,6 @@ public class ItemDetailPopupUI : MonoBehaviour
     }
     else if (presetModeActive)
     {
-        // Відкритий Backpack Preset,
-        // але предмет натиснутий у реальному інвентарі.
 
         equipButton.gameObject.SetActive(false);
         useButton.gameObject.SetActive(false);
@@ -104,7 +97,6 @@ public class ItemDetailPopupUI : MonoBehaviour
     }
     else
     {
-        // Звичайний Inventory.
 
         equipButton.gameObject.SetActive(data.EquipCategory != null);
         useButton.gameObject.SetActive(data.itemType == ItemType.Consumable);
@@ -149,11 +141,9 @@ public class ItemDetailPopupUI : MonoBehaviour
         if (data == null)
             return false;
 
-        // Набої
         if (data.itemType == ItemType.Ammo)
             return true;
 
-        // Гранати та їжа/напої
         if (data is ConsumableData consumable)
         {
             return consumable.effect == ConsumableEffect.Grenade

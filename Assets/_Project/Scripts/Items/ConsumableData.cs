@@ -2,11 +2,11 @@ using UnityEngine;
 
 public enum ConsumableEffect
 {
-    Heal,            // аптечка
-    StopBleeding,    // бинт
-    RemoveRadiation, // антирад
-    RestoreStamina,  // їжа/напій
-    Grenade          // граната
+    Heal,            
+    StopBleeding,    
+    RemoveRadiation, 
+    RestoreStamina,  
+    Grenade          
 }
 
 [CreateAssetMenu(fileName = "NewConsumable", menuName = "ZoneRunner/Items/Consumable")]
@@ -21,5 +21,5 @@ public class ConsumableData : ItemData
         || effect == ConsumableEffect.StopBleeding
         || effect == ConsumableEffect.RemoveRadiation
             ? SlotCategory.Medicine
-            : null; // Grenade і RestoreStamina — без слота, тільки "Використати"
+            : null; 
 }

@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class BackpackPresetGridUI : MonoBehaviour
 {
-    [SerializeField] private RectTransform panelRoot; // контейнер, під ширину якого підганяється розмір клітинки
+    [SerializeField] private RectTransform panelRoot; 
     [SerializeField] private RectTransform cellsContainer;
     [SerializeField] private RectTransform itemsContainer;
 
@@ -70,7 +70,7 @@ public class BackpackPresetGridUI : MonoBehaviour
         }
     }
 
-    // NEW: підганяємо реальну висоту панелі під розмір сітки, щоб не було зайвого простору знизу
+    
     Vector2 size = panelRoot.sizeDelta;
     size.y = grid.Height * cellSize;
     panelRoot.sizeDelta = size;

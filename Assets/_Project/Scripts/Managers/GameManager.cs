@@ -6,7 +6,7 @@ public class GameManager : MonoBehaviour
     public static GameManager Instance { get; private set; }
 
     public GameState CurrentState { get; private set; } = GameState.MainMenu;
-    public event Action<GameState, GameState> OnStateChanged; // (previous, next)
+    public event Action<GameState, GameState> OnStateChanged; 
 
     private void Awake()
     {

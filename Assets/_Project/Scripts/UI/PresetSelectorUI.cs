@@ -18,7 +18,7 @@ public class PresetSelectorUI : MonoBehaviour
     [Header("Selection List")]
     [SerializeField] private GameObject selectionListRoot;
     [SerializeField] private Transform selectionListContainer;
-    [SerializeField] private GameObject presetListItemPrefab; // Button + TextMeshProUGUI всередині
+    [SerializeField] private GameObject presetListItemPrefab; 
 
     private void Start()
     {

@@ -4,7 +4,7 @@ using UnityEngine.UI;
 public class EquipmentSlotUI : MonoBehaviour
 {
     [SerializeField] private SlotCategory category;
-    [SerializeField] private int slotIndex; // 0 для одиночних слотів (Armor/Detector), 0/1 для зброї і медицини, 0/1/2 для артефактів
+    [SerializeField] private int slotIndex; 
     [SerializeField] private Image iconImage;
     [SerializeField] private Sprite emptySlotSprite;
 

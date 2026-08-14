@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 public abstract class ItemData : ScriptableObject
 {
@@ -16,6 +17,11 @@ public abstract class ItemData : ScriptableObject
     [Header("Stacking")]
     public bool isStackable = false;
     public int maxStackSize = 1;
+
+    [Header("Stat Modifiers")]
+    [SerializeField] private List<StatModifier> statModifiers = new();
+
+    public IReadOnlyList<StatModifier> StatModifiers => statModifiers;
 
     // До якої категорії слотів підходить предмет. null = взагалі не екіпірується
     public virtual SlotCategory? EquipCategory => null;

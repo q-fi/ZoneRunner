@@ -53,7 +53,6 @@ public class InventoryGrid
         if (y + data.gridHeight > Height)
             return false;
 
-        // Перевірка, чи місце вільне
         if (!CanPlaceAt(data, x, y))
             return false;
 

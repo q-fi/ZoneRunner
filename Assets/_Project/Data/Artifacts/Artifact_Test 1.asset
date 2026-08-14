@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 85fc4c0bc1dd3ed4d949585738d5c10e, type: 3}
-  m_Name: Artifact_Test
+  m_Name: Artifact_Test 1
   m_EditorClassIdentifier: Assembly-CSharp::ArtifactData
   itemId: 
   itemName: Artifact
@@ -23,7 +23,11 @@ MonoBehaviour:
   maxStackSize: 1
   statModifiers:
   - stat: 0
-    value: 3
-  rarity: 0
+    value: 5
+  - stat: 1
+    value: -2
+  - stat: 3
+    value: 1
+  rarity: 1
   radiationLevel: 20
   basePrice: 400
