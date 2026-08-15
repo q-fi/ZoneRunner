@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3cb962ac91ae90243b367672b99e6e11, type: 3}
+  m_Name: Location_04_Data
+  m_EditorClassIdentifier: Assembly-CSharp::LocationData
+  locationId: location_04
+  displayName: LOCATION 04
+  description: Test location description.
+  threatLevel: ' Extreme'
+  possibleEnemies: "\u2014"
+  hazards: "\u2014"
+  possibleEvents: "\u2014"
+  loot: Basic Loot
+  stashes: "\u2014"
+  artifacts: "\u2014"
+  legendaryArtifactPossible: 0
+  travelDurationSeconds: 75

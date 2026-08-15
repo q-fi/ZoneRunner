@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d67ac763089306145912ea858feb5f87, type: 3}
+  m_Name: Region_02
+  m_EditorClassIdentifier: Assembly-CSharp::RegionData
+  regionId: region_02
+  regionName: Region_02
+  shortDescription: 
+  fullDescription: 
+  threatLevel: 1
+  possibleThreats: []
+  possibleEvents: []
+  possiblePhenomena: []
+  inhabitants: []
+  lootAmountRange: {x: 3, y: 8}
+  stashAmountRange: {x: 0, y: 3}
+  artifactAmountRange: {x: 0, y: 2}
+  legendaryArtifactPossible: 0
+  refreshIntervalMinutes: 60
+  locations:
+  - {fileID: 11400000, guid: 90646f5115302344ea35117002479bce, type: 2}
+  - {fileID: 11400000, guid: 7b330e6483a020a4a9e9d75cb2cf8981, type: 2}
+  regionMapPrefab: {fileID: 3253523090678329888, guid: c630cf21a8d78144c9edd5095ebda953, type: 3}
