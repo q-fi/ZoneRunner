@@ -8,6 +8,10 @@ public class WeaponData : ItemData
 
     [Header("Weapon Stats")]
     public int damage;
+
+    [Range(0f, 100f)]
+    public float damageSpreadPercent = 15f;
+
     public float range;
     public int magazineSize;
     public float durability = 100f;

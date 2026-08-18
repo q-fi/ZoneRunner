@@ -4,6 +4,9 @@ using UnityEngine.UI;
 
 public class LocationPopupUI : MonoBehaviour
 {
+    [Header("Map")]
+    [SerializeField] private MapPanelController mapPanelController;
+
     [Header("Popup")]
     [SerializeField] private GameObject locationDetailsPopup;
     [SerializeField] private Button closeLocationPopupButton;
@@ -25,7 +28,7 @@ public class LocationPopupUI : MonoBehaviour
 
     public int SelectedEquipmentPresetIndex =>
         equipmentPresetDropdown != null
-            ? equipmentPresetDropdown.value
+            ? equipmentPresetDropdown.value - 1
             : -1;
 
     public int SelectedBackpackPresetIndex =>
@@ -35,6 +38,9 @@ public class LocationPopupUI : MonoBehaviour
 
     private void Awake()
     {
+        if (mapPanelController == null)
+            mapPanelController = GetComponentInParent<MapPanelController>();
+
         closeLocationPopupButton.onClick.AddListener(ClosePopup);
 
         departButton.onClick.AddListener(Depart);
@@ -77,10 +83,19 @@ public class LocationPopupUI : MonoBehaviour
 
     private void Depart()
     {
-        if (SelectedLocation == null || TravelManager.Instance == null)
+        if (SelectedLocation == null ||
+            mapPanelController == null ||
+            mapPanelController.CurrentRegion == null ||
+            TravelManager.Instance == null)
+        {
+            Debug.LogError(
+                "LocationPopupUI: travel context is incomplete."
+            );
             return;
+        }
 
         TravelManager.Instance.StartTravel(
+            mapPanelController.CurrentRegion,
             SelectedLocation,
             SelectedEquipmentPresetIndex,
             SelectedBackpackPresetIndex
@@ -107,6 +122,10 @@ public class LocationPopupUI : MonoBehaviour
     {
         equipmentPresetDropdown.ClearOptions();
 
+        equipmentPresetDropdown.options.Add(
+            new TMP_Dropdown.OptionData("Current Equipment")
+        );
+
         var presets = InventoryManager.Instance.EquipmentPresets.Presets;
 
         foreach (var preset in presets)
@@ -114,13 +133,7 @@ public class LocationPopupUI : MonoBehaviour
                 new TMP_Dropdown.OptionData(preset.PresetName)
             );
 
-        int currentIndex = presets.IndexOf(
-            InventoryManager.Instance.EquipmentPresets.CurrentPreset
-        );
-
-        equipmentPresetDropdown.SetValueWithoutNotify(
-            Mathf.Max(0, currentIndex)
-        );
+        equipmentPresetDropdown.SetValueWithoutNotify(0);
 
         equipmentPresetDropdown.RefreshShownValue();
     }

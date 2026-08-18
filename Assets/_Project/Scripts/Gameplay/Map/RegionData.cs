@@ -22,6 +22,9 @@ public class RegionData : ScriptableObject
     [Range(1, 10)]
     [SerializeField] private int threatLevel = 1;
 
+    [Range(0f, 2f)]
+    [SerializeField] private float ambushChanceMultiplier = 1f;
+
     [SerializeField] private List<string> possibleThreats = new();
     [SerializeField] private List<string> possibleEvents = new();
     [SerializeField] private List<string> possiblePhenomena = new();
@@ -58,6 +61,7 @@ public class RegionData : ScriptableObject
     public string FullDescription => fullDescription;
 
     public int ThreatLevel => threatLevel;
+    public float AmbushChanceMultiplier => ambushChanceMultiplier;
 
     public IReadOnlyList<string> PossibleThreats =>
         possibleThreats;
@@ -92,6 +96,8 @@ public class RegionData : ScriptableObject
     private void OnValidate()
     {
         threatLevel = Mathf.Clamp(threatLevel, 1, 10);
+        ambushChanceMultiplier =
+            Mathf.Clamp(ambushChanceMultiplier, 0f, 2f);
         refreshIntervalMinutes =
             Mathf.Max(1, refreshIntervalMinutes);
 

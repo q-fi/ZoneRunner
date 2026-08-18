@@ -1,4 +1,15 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
+
+[Serializable]
+public class LocationEncounterEntry
+{
+    public EncounterData encounter;
+
+    [Min(0f)]
+    public float weight = 1f;
+}
 
 [CreateAssetMenu(
     fileName = "LocationData",
@@ -28,5 +39,17 @@ public class LocationData : ScriptableObject
     [Header("Travel")]
     [Min(1f)]
     public float travelDurationSeconds = 10f;
-    
+
+    [Header("Battle Encounters")]
+    [Range(0f, 100f)]
+    public float outboundAmbushChancePercent = 35f;
+
+    [Range(0f, 100f)]
+    public float returnAmbushChancePercent = 5f;
+
+    [SerializeField]
+    private List<LocationEncounterEntry> possibleBattleEncounters = new();
+
+    public IReadOnlyList<LocationEncounterEntry> PossibleBattleEncounters =>
+        possibleBattleEncounters;
 }

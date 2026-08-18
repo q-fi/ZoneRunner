@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4d768a0c2e6e01240a7526288103eb71, type: 3}
+  m_Name: Ammo_test
+  m_EditorClassIdentifier: Assembly-CSharp::AmmoData
+  itemId: ammo_test
+  itemName: Test Ammo
+  description: 
+  icon: {fileID: 0}
+  itemType: 4
+  gridWidth: 1
+  gridHeight: 1
+  isStackable: 1
+  maxStackSize: 120
+  statModifiers: []
+  ammoTypeId: test_ammo
+  damageModifier: 0

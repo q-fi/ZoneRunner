@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5d5510f0722f0e345a20743b281ddedd, type: 3}
+  m_Name: Deck_test
+  m_EditorClassIdentifier: Assembly-CSharp::BattleDeckData
+  deckId: deck_test
+  displayName: Test Deck
+  cards:
+  - card: {fileID: 11400000, guid: 7fa94f421057ea548b3592bbb90eb359, type: 2}
+    copies: 2
+  - card: {fileID: 11400000, guid: fe0f730e8a5804247b4da718d802e36f, type: 2}
+    copies: 1

@@ -10,17 +10,22 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3cb962ac91ae90243b367672b99e6e11, type: 3}
-  m_Name: Location_02_Data
+  m_Name: Location_01_Data
   m_EditorClassIdentifier: Assembly-CSharp::LocationData
-  locationId: location_02
-  displayName: LOCATION 02
+  locationId: location_01
+  displayName: LOCATION 01
   description: Test location description.
-  threatLevel: Medium
+  threatLevel: Low
   possibleEnemies: "\u2014"
   hazards: "\u2014"
   possibleEvents: "\u2014"
-  loot: ' Basic Loot'
+  loot: Basic Loot
   stashes: "\u2014"
   artifacts: "\u2014"
-  legendaryArtifactPossible: 0
-  travelDurationSeconds: 25
+  legendaryArtifactPossible: 1
+  travelDurationSeconds: 5
+  outboundAmbushChancePercent: 100
+  returnAmbushChancePercent: 5
+  possibleBattleEncounters:
+  - encounter: {fileID: 11400000, guid: 054f6a2b4b7466e40b6f9484114fcd9e, type: 2}
+    weight: 1

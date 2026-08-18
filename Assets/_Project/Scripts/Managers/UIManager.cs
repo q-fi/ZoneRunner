@@ -13,6 +13,10 @@ public class UIManager : MonoBehaviour
     [SerializeField] private GameObject leaderboardPanel;
     [SerializeField] private GameObject pausePanel;
 
+    [Header("Global Bars")]
+    [SerializeField] private GameObject globalTopBar;
+    [SerializeField] private GameObject navBar;
+
     [Header("Overlays (not tied to GameState)")]
     [SerializeField] private GameObject rewardPanel;
     [SerializeField] private GameObject settingsPanel;
@@ -46,6 +50,14 @@ public class UIManager : MonoBehaviour
         searchPanel.SetActive(next == GameState.Search);
         leaderboardPanel.SetActive(next == GameState.Leaderboard);
         pausePanel.SetActive(next == GameState.Pause);
+
+        bool showGlobalBars = next != GameState.Battle;
+
+        if (globalTopBar != null)
+            globalTopBar.SetActive(showGlobalBars);
+
+        if (navBar != null)
+            navBar.SetActive(showGlobalBars);
     }
 
     // ---------- Overlays ----------

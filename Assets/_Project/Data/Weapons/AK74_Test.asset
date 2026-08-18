@@ -21,8 +21,11 @@ MonoBehaviour:
   gridHeight: 3
   isStackable: 0
   maxStackSize: 1
-  damage: 35
+  statModifiers: []
+  weaponSlot: 0
+  damage: 20
+  damageSpreadPercent: 15
   range: 100
   magazineSize: 30
   durability: 100
-  ammoTypeId: 
+  ammoTypeId: test_ammo

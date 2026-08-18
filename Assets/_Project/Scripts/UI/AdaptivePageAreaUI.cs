@@ -43,17 +43,28 @@ public class AdaptivePageAreaUI : MonoBehaviour
             return;
         }
 
-        topBar.GetWorldCorners(topBarCorners);
-        bottomBar.GetWorldCorners(bottomBarCorners);
+        float desiredTop = parentRect.rect.yMax;
+        float desiredBottom = parentRect.rect.yMin;
 
-        float topBarBottom =
-            parentRect.InverseTransformPoint(topBarCorners[0]).y;
+        if (topBar.gameObject.activeInHierarchy)
+        {
+            topBar.GetWorldCorners(topBarCorners);
 
-        float bottomBarTop =
-            parentRect.InverseTransformPoint(bottomBarCorners[1]).y;
+            float topBarBottom =
+                parentRect.InverseTransformPoint(topBarCorners[0]).y;
 
-        float desiredTop = topBarBottom + overlap;
-        float desiredBottom = bottomBarTop - overlap;
+            desiredTop = topBarBottom + overlap;
+        }
+
+        if (bottomBar.gameObject.activeInHierarchy)
+        {
+            bottomBar.GetWorldCorners(bottomBarCorners);
+
+            float bottomBarTop =
+                parentRect.InverseTransformPoint(bottomBarCorners[1]).y;
+
+            desiredBottom = bottomBarTop - overlap;
+        }
 
         if (desiredTop <= desiredBottom)
             return;
