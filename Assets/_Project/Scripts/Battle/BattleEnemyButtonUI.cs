@@ -1,3 +1,4 @@
+using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -8,8 +9,14 @@ public class BattleEnemyButtonUI : MonoBehaviour
     [SerializeField] private BattleController battleController;
     [SerializeField] private BattleFormationSlot formationSlot;
     [SerializeField] private TMP_Text label;
+    [SerializeField] private TMP_Text damagePreviewText;
+    [SerializeField] private TMP_Text damageResultText;
+
+    [Min(0f)]
+    [SerializeField] private float damageResultDuration = 0.8f;
 
     private Button button;
+    private Coroutine damageResultRoutine;
 
     private void Awake()
     {
@@ -31,6 +38,8 @@ public class BattleEnemyButtonUI : MonoBehaviour
         {
             battleController.OnBattleStateChanged -= Refresh;
             battleController.OnBattleStateChanged += Refresh;
+            battleController.OnEnemyDamaged -= HandleEnemyDamaged;
+            battleController.OnEnemyDamaged += HandleEnemyDamaged;
         }
 
         Refresh();
@@ -42,7 +51,19 @@ public class BattleEnemyButtonUI : MonoBehaviour
             button.onClick.RemoveListener(SelectEnemy);
 
         if (battleController != null)
+        {
             battleController.OnBattleStateChanged -= Refresh;
+            battleController.OnEnemyDamaged -= HandleEnemyDamaged;
+        }
+
+        if (damageResultRoutine != null)
+        {
+            StopCoroutine(damageResultRoutine);
+            damageResultRoutine = null;
+        }
+
+        if (damageResultText != null)
+            damageResultText.gameObject.SetActive(false);
     }
 
     private void SelectEnemy()
@@ -68,6 +89,8 @@ public class BattleEnemyButtonUI : MonoBehaviour
                 : $"{formationSlot}\nEMPTY";
         }
 
+        RefreshDamagePreview(enemy);
+
         if (button == null)
             return;
 
@@ -77,6 +100,72 @@ public class BattleEnemyButtonUI : MonoBehaviour
             battleController != null &&
             battleController.CurrentPhase == BattlePhase.PlayerTurn &&
             battleController.SelectedCard != null;
+    }
+
+    private void RefreshDamagePreview(BattleEnemyState enemy)
+    {
+        if (damagePreviewText == null)
+            return;
+
+        float minimumDamage = 0f;
+        float maximumDamage = 0f;
+        bool showPreview =
+            battleController != null &&
+            enemy != null &&
+            enemy.IsAlive &&
+            battleController.TryGetSelectedCardDamageRange(
+                enemy,
+                out minimumDamage,
+                out maximumDamage
+            );
+
+        damagePreviewText.gameObject.SetActive(showPreview);
+
+        if (!showPreview)
+            return;
+
+        damagePreviewText.text = Mathf.Approximately(
+            minimumDamage,
+            maximumDamage
+        )
+            ? $"<size=200%>~</size> {maximumDamage:0.#}"
+            : $"<size=200%>~</size> " +
+              $"{minimumDamage:0.#}-{maximumDamage:0.#}";
+    }
+
+    private void HandleEnemyDamaged(
+        BattleEnemyState damagedEnemy,
+        float damage
+    )
+    {
+        if (damageResultText == null ||
+            damagedEnemy == null ||
+            damagedEnemy.FormationSlot != formationSlot)
+        {
+            return;
+        }
+
+        if (damageResultRoutine != null)
+            StopCoroutine(damageResultRoutine);
+
+        damageResultRoutine = StartCoroutine(
+            ShowDamageResult(damage)
+        );
+    }
+
+    private IEnumerator ShowDamageResult(float damage)
+    {
+        damageResultText.text = damage > 0f
+            ? $"-{damage:0.#}"
+            : "0";
+        damageResultText.gameObject.SetActive(true);
+
+        yield return new WaitForSecondsRealtime(
+            damageResultDuration
+        );
+
+        damageResultText.gameObject.SetActive(false);
+        damageResultRoutine = null;
     }
 
     private int FindEnemyIndex()

@@ -15,7 +15,7 @@ MonoBehaviour:
   cardId: test_shot
   displayName: Test Shot
   icon: {fileID: 0}
-  description: Test single-target attack.
+  description: Deal weapon damage to one selected enemy.
   staminaCost: 2
   targetType: 0
   hitChancePercent: 100

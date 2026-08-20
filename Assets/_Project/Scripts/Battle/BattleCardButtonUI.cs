@@ -11,6 +11,13 @@ public class BattleCardButtonUI : MonoBehaviour,
     [SerializeField] private BattleController battleController;
     [SerializeField] private TMP_Text label;
 
+    [Header("Card Content")]
+    [SerializeField] private TMP_Text titleText;
+    [SerializeField] private TMP_Text staminaText;
+    [SerializeField] private TMP_Text damageText;
+    [SerializeField] private TMP_Text descriptionText;
+    [SerializeField] private Image centerIcon;
+
     [Header("Interaction Visuals")]
     [Min(0f)]
     [SerializeField] private float raisedHeight = 75f;
@@ -137,10 +144,7 @@ public class BattleCardButtonUI : MonoBehaviour,
 
     private void Refresh()
     {
-        if (label != null)
-        {
-            label.text = BuildLabelText();
-        }
+        RefreshCardContent();
 
         if (button == null)
             return;
@@ -202,6 +206,80 @@ public class BattleCardButtonUI : MonoBehaviour,
 
         text += $"\n{card.staminaCost:0.#} Stamina";
         return text;
+    }
+
+    private void RefreshCardContent()
+    {
+        BattleCardData card = Card;
+        bool hasStructuredContent =
+            titleText != null &&
+            staminaText != null &&
+            damageText != null &&
+            descriptionText != null &&
+            centerIcon != null;
+
+        if (label != null)
+        {
+            label.gameObject.SetActive(!hasStructuredContent);
+
+            if (!hasStructuredContent)
+                label.text = BuildLabelText();
+        }
+
+        if (card == null)
+            return;
+
+        if (titleText != null)
+            titleText.text = card.displayName;
+
+        if (staminaText != null)
+            staminaText.text = card.staminaCost.ToString("0.#");
+
+        if (damageText != null)
+        {
+            float damage = 0f;
+            bool hasDamage =
+                battleController != null &&
+                battleController.TryGetCardDisplayedDamage(
+                    card,
+                    out damage
+                );
+
+            damageText.text = hasDamage
+                ? damage.ToString("0.#")
+                : "—";
+        }
+
+        if (descriptionText != null)
+            descriptionText.text = card.description;
+
+        RefreshCenterIcon(card);
+    }
+
+    private void RefreshCenterIcon(BattleCardData card)
+    {
+        if (centerIcon == null)
+            return;
+
+        Sprite icon = null;
+
+        if (battleController != null &&
+            battleController.TryGetCardWeapon(
+                card,
+                out WeaponData weapon
+            ))
+        {
+            icon = weapon.icon;
+        }
+
+        if (icon == null)
+            icon = card.icon;
+
+        if (icon == null && card.requiredBackpackItem != null)
+            icon = card.requiredBackpackItem.icon;
+
+        centerIcon.sprite = icon;
+        centerIcon.enabled = icon != null;
     }
 
     private void UpdateInteractionVisual()

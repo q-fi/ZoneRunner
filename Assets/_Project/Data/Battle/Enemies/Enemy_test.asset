@@ -18,3 +18,8 @@ MonoBehaviour:
   maxHealth: 30
   defense: 5
   baseDamage: 2
+  lootTable:
+  - item: {fileID: 11400000, guid: c201981fe89d1b04e9b4434c1eee5c77, type: 2}
+    dropChancePercent: 100
+    minCount: 2400
+    maxCount: 2400

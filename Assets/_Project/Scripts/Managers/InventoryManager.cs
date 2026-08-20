@@ -57,7 +57,7 @@ public class InventoryManager : MonoBehaviour
             {
                 int freeSpace = template.maxStackSize - existing.StackCount;
                 int toAdd = Mathf.Min(freeSpace, count);
-                existing.StackCount += toAdd;
+                existing.AddUnits(toAdd);
                 count -= toAdd;
                 OnInventoryChanged?.Invoke();
 
@@ -172,7 +172,7 @@ public class InventoryManager : MonoBehaviour
         Debug.Log($"Використано {instance.Data.itemName}: ефект {consumable.effect} ({consumable.effectValue})");
         // TODO: PlayerStats.ApplyEffect(consumable.effect, consumable.effectValue) — коли з'явиться система здоров'я
 
-        instance.StackCount--;
+        instance.ConsumeUnits(1);
         if (instance.StackCount <= 0)
             RemoveItem(instance);
         else

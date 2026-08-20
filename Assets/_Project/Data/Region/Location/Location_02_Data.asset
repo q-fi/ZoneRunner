@@ -23,7 +23,7 @@ MonoBehaviour:
   stashes: "\u2014"
   artifacts: "\u2014"
   legendaryArtifactPossible: 0
-  travelDurationSeconds: 25
+  travelDurationSeconds: 5
   outboundAmbushChancePercent: 100
   returnAmbushChancePercent: 5
   possibleBattleEncounters:

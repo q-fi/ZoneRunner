@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BattleCardData
   cardId: test_grenade
   displayName: Test Grenade
-  icon: {fileID: 0}
-  description: Test area attack.
+  icon: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
+  description: Deal area damage to the selected enemy and adjacent enemies.
   staminaCost: 5
   targetType: 3
   hitChancePercent: 100
